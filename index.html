@@ -66,14 +66,22 @@
   .tablewrap{overflow-x:auto}
   .fields td{font-size:13px}
   .fields th:last-child{width:60%}
-  .fields td:first-child code{overflow-wrap:anywhere}
+  .fields td:first-child code{white-space:nowrap}   /* breaks only at the <wbr> after each dot */
   .fields .type{color:var(--mu);white-space:nowrap}
+  .fields td:last-child{overflow-wrap:break-word}
 
   @media (max-width:860px){
     .docs{grid-template-columns:minmax(0,1fr);gap:8px}
     .toc{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}
     .toc .label{display:none}
     .toc a{border:1px solid var(--ln2)}
+  }
+  /* Phones: each field becomes a block, name and type on one line, description below at full width. */
+  @media (max-width:560px){
+    .fields thead{display:none}
+    .fields tr{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--ln)}
+    .fields td{display:block;padding:0;border:0}
+    .fields td:last-child{grid-column:1/-1;width:auto}
   }
 </style>
 </head>
