@@ -32,7 +32,7 @@ jobs:
       - name: Collect the published files
         run: |
           mkdir site
-          cp -R v1 index.html CNAME site/
+          cp -R v1 index.html site/
 
       - uses: actions/upload-pages-artifact@v5
         with:
