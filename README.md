@@ -62,8 +62,3 @@ Then visit <http://localhost:8001>. A local copy of the tools site (on port 8000
 | `tax/depreciation/pools.json` | Not yet; the [Depreciation Schedule](https://tools.rupeshbhandari.com.np/finance/depreciation/) still keeps its own copy |
 | `market/nepse/*.json` | Not yet; the [NEPSE Share Calculator](https://tools.rupeshbhandari.com.np/finance/nepse-calculator/) still keeps its own copy |
 
-## Deployment
-
-GitHub Actions publishes the site on every push to `main` (`.github/workflows/deploy.yml`): it runs `scripts/check.py`, then publishes `v1/`, `index.html` and `CNAME`. One-time setup in the repository's **Settings → Pages**: set **Source** to **GitHub Actions**, and set the custom domain to `data.rupeshbhandari.com.np` (its DNS record already points at GitHub Pages through Cloudflare).
-
-GitHub Pages caches files for up to 10 minutes, so a change can take that long to reach the calculators.
