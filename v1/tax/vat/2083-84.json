@@ -1,0 +1,41 @@
+{
+  "dataset": "vat",
+  "fiscal_year": "2083/84",
+  "starts": {
+    "bs": "2083-04-01",
+    "ad": "2026-07-17"
+  },
+  "updated": "2026-10-19",
+  "rates": [
+    {
+      "id": "standard",
+      "rate": 13
+    },
+    {
+      "id": "reduced",
+      "rate": 5,
+      "applies_to": [
+        "Ride-sharing transport",
+        "Electricity use above 50 units"
+      ],
+      "since": "2083/84"
+    },
+    {
+      "id": "none",
+      "rate": 0,
+      "applies_to": [
+        "Exempt goods and services",
+        "Sales by a seller who is not VAT-registered"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Value Added Tax Act 2052"
+    },
+    {
+      "title": "Finance Act 2083 (Nepal Gazette)",
+      "url": "https://ird.gov.np/content/13566/economic-act--2083--date-of-publication-in/"
+    }
+  ]
+}

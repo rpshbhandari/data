@@ -1,0 +1,59 @@
+{
+  "dataset": "depreciation-pools",
+  "updated": "2026-10-19",
+  "currency": "NPR",
+  "method": "Written-down value: each year's rate applies to the pool's depreciation base",
+  "pools": [
+    {
+      "id": "A",
+      "rate": 5,
+      "assets": "Buildings, structures and similar works of a permanent nature"
+    },
+    {
+      "id": "B",
+      "rate": 25,
+      "assets": "Computers, data processing equipment, furniture, fixtures and office equipment"
+    },
+    {
+      "id": "C",
+      "rate": 20,
+      "assets": "Automobiles, buses and minibuses"
+    },
+    {
+      "id": "D",
+      "rate": 15,
+      "assets": "Construction and excavation equipment, and depreciable assets not in another pool"
+    },
+    {
+      "id": "E",
+      "rate": null,
+      "assets": "Intangible assets other than those in pool D",
+      "method": "Cost divided by useful life, rounded to the nearest half year; each asset is its own pool"
+    }
+  ],
+  "additions": [
+    {
+      "added": "Shrawan to Poush",
+      "share_of_cost": "1"
+    },
+    {
+      "added": "Magh to Chaitra",
+      "share_of_cost": "2/3"
+    },
+    {
+      "added": "Baisakh to Ashadh",
+      "share_of_cost": "1/3"
+    }
+  ],
+  "additions_note": "The rest of the cost is added to the pool the following year",
+  "small_balance": {
+    "below": 2000,
+    "rule": "If a pool's balance after the year's depreciation is under NPR 2,000, the whole balance is deducted that year"
+  },
+  "sources": [
+    {
+      "title": "Income Tax Act 2058, Schedule 2",
+      "url": "https://nepallaws.com/Laws/income-tax-act-2058-2002/schedule-ii-relating-to-section-19/assessment-of-depreciation-deduction/"
+    }
+  ]
+}

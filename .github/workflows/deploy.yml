@@ -1,0 +1,49 @@
+name: Deploy data
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      # Stops the deploy if a file is missing its sources or date, a rate is out
+      # of range, slabs don't join up, or index.json doesn't match the files.
+      - name: Check the data files
+        run: python scripts/check.py
+
+      - name: Collect the published files
+        run: |
+          mkdir site
+          cp -R v1 index.html CNAME site/
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

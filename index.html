@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rupesh Bhandari Data</title>
+<meta name="description" content="Nepal's income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges as free JSON files, each dated and sourced.">
+<link rel="canonical" href="https://data.rupeshbhandari.com.np/">
+<meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1b1e" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="96x96" href="https://tools.rupeshbhandari.com.np/assets/img/favicon-96x96.png">
+<script>try{var t=localStorage.getItem("tools-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<!-- Styles, fonts and the theme switch come from the tools site, so the two sites look the same. -->
+<link rel="stylesheet" href="https://tools.rupeshbhandari.com.np/assets/site.css">
+<script src="https://tools.rupeshbhandari.com.np/assets/site.js" defer></script>
+<style>
+  .base{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 32px}
+  .base code{overflow-wrap:anywhere}
+  .files{overflow-x:auto;margin:0 0 32px}
+  .files td a{overflow-wrap:anywhere}
+  pre{margin:0 0 24px;padding:14px;border:1px solid var(--ln);border-radius:10px;background:var(--field);overflow-x:auto;font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="back" href="/"><img src="https://tools.rupeshbhandari.com.np/assets/img/favicon-96x96.png" alt="" width="28" height="28">Data</a>
+  <nav class="sites" aria-label="Other sites">
+    <a href="https://www.rupeshbhandari.com.np/" target="_blank" rel="noopener noreferrer">Blog</a>
+    <a href="https://books.rupeshbhandari.com.np/" target="_blank" rel="noopener noreferrer">Books</a>
+    <a href="https://tools.rupeshbhandari.com.np/" target="_blank" rel="noopener noreferrer">Tools</a>
+  </nav>
+  <div class="seg" id="theme-seg" role="group" aria-label="Theme">
+    <button type="button" data-theme-set="auto">Auto</button>
+    <button type="button" data-theme-set="light">Light</button>
+    <button type="button" data-theme-set="dark">Dark</button>
+  </div>
+</header>
+
+<main>
+  <h1>Nepal's tax and market rates, as JSON</h1>
+  <p class="sub">Income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges as plain files. Each file says when it was last checked and where its figures come from, and the calculators on <a href="https://tools.rupeshbhandari.com.np/">tools.rupeshbhandari.com.np</a> read these same files. Free to use, with no key or sign-up.</p>
+
+  <div class="base">
+    <code id="base">https://data.rupeshbhandari.com.np/v1/</code>
+    <button type="button" class="mini" id="copy-base">Copy</button>
+  </div>
+
+  <h2>Files</h2>
+  <div class="files"><table class="tbl" id="files"><tbody><tr><td>Loading the file list…</td></tr></tbody></table></div>
+
+  <h2>Using a file</h2>
+<pre>const url = "https://data.rupeshbhandari.com.np/v1/tax/income/2083-84.json";
+const { slabs } = await fetch(url).then((r) =&gt; r.json());
+// slabs.individual → [{ from: 0, to: 1000000, rate: 1, … }, …]</pre>
+  <p>Rates are percentages (13 means 13%), amounts are in rupees, and a slab with <code>"to": null</code> has no upper limit. <a href="v1/index.json">v1/index.json</a> lists every file with the date it was last checked.</p>
+
+  <p class="foot">Past years stay published: a new fiscal year adds a new file and never changes last year's. Figures are copied from the sources named in each file. Check them against the Inland Revenue Department, SEBON or NEPSE before relying on them; this is not tax or investment advice.</p>
+</main>
+
+<script>
+"use strict";
+const NAMES = {
+  "income-tax": "Income tax slabs and deductions",
+  "tds": "TDS rates",
+  "vat": "VAT rates",
+  "depreciation-pools": "Depreciation pools",
+  "nepse-broker-commission": "NEPSE broker commission",
+  "nepse-fees": "SEBON fee and DP charge",
+  "nepse-capital-gains-tax": "Capital gains tax on listed shares",
+};
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const long = (iso) => new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+document.getElementById("copy-base").addEventListener("click", (e) => copyText(document.getElementById("base").textContent, e.currentTarget));
+
+fetch("v1/index.json")
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then((index) => {
+    const rows = index.files.map((f) => `<tr>
+      <td><a href="v1/${esc(f.path)}">${esc(f.path)}</a></td>
+      <td>${esc(NAMES[f.dataset] || f.dataset)}${f.fiscal_year ? `, ${esc(f.fiscal_year)}` : ""}</td>
+      <td><time datetime="${esc(f.updated)}">${long(f.updated)}</time></td></tr>`).join("");
+    document.getElementById("files").innerHTML = `<thead><tr><th>File</th><th>Contents</th><th>Last checked</th></tr></thead><tbody>${rows}</tbody>`;
+  })
+  .catch(() => {
+    document.getElementById("files").innerHTML = `<tbody><tr><td>The file list didn't load. Open <a href="v1/index.json">v1/index.json</a> directly.</td></tr></tbody>`;
+  });
+</script>
+</body>
+</html>

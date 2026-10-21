@@ -1,0 +1,43 @@
+{
+  "dataset": "nepse-capital-gains-tax",
+  "updated": "2026-10-16",
+  "short_term_max_days": 365,
+  "schedules": [
+    {
+      "from": "2021-07-16",
+      "individual": {
+        "short_term": 7.5,
+        "long_term": 5
+      },
+      "institution": 10,
+      "basis": "In force from FY 2078/79"
+    },
+    {
+      "from": "2026-07-17",
+      "individual": {
+        "short_term": 10,
+        "long_term": 7.5
+      },
+      "institution": 10,
+      "basis": "Finance Act 2083"
+    },
+    {
+      "from": "2026-09-22",
+      "individual": {
+        "short_term": 5,
+        "long_term": 3.75
+      },
+      "institution": 10,
+      "basis": "Cabinet decision, gazetted Asoj 5 2083"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Finance Act 2083 (Nepal Gazette)",
+      "url": "https://ird.gov.np/content/13566/economic-act--2083--date-of-publication-in/"
+    },
+    {
+      "title": "Ministry of Finance notice, gazetted Asoj 5 2083"
+    }
+  ]
+}

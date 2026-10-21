@@ -1,0 +1,116 @@
+{
+  "dataset": "income-tax",
+  "fiscal_year": "2080/81",
+  "starts": {
+    "bs": "2080-04-01",
+    "ad": "2023-07-17"
+  },
+  "updated": "2026-10-16",
+  "currency": "NPR",
+  "applies_to": "Resident individual with employment income",
+  "slabs": {
+    "individual": [
+      {
+        "from": 0,
+        "to": 500000,
+        "rate": 1,
+        "rate_if_ssf": 0,
+        "note": "Social security tax, waived for SSF contributors"
+      },
+      {
+        "from": 500000,
+        "to": 700000,
+        "rate": 10
+      },
+      {
+        "from": 700000,
+        "to": 1000000,
+        "rate": 20
+      },
+      {
+        "from": 1000000,
+        "to": 2000000,
+        "rate": 30
+      },
+      {
+        "from": 2000000,
+        "to": 5000000,
+        "rate": 36
+      },
+      {
+        "from": 5000000,
+        "to": null,
+        "rate": 39
+      }
+    ],
+    "couple": [
+      {
+        "from": 0,
+        "to": 600000,
+        "rate": 1,
+        "rate_if_ssf": 0,
+        "note": "Social security tax, waived for SSF contributors"
+      },
+      {
+        "from": 600000,
+        "to": 800000,
+        "rate": 10
+      },
+      {
+        "from": 800000,
+        "to": 1100000,
+        "rate": 20
+      },
+      {
+        "from": 1100000,
+        "to": 2000000,
+        "rate": 30
+      },
+      {
+        "from": 2000000,
+        "to": 5000000,
+        "rate": 36
+      },
+      {
+        "from": 5000000,
+        "to": null,
+        "rate": 39
+      }
+    ]
+  },
+  "deductions": {
+    "retirement_funds": {
+      "funds": [
+        "SSF",
+        "EPF",
+        "CIT"
+      ],
+      "cap_with_ssf": 500000,
+      "cap_without_ssf": 300000,
+      "max_share_of_income": "1/3"
+    },
+    "life_insurance": {
+      "cap": 40000
+    },
+    "health_insurance": {
+      "cap": 20000
+    },
+    "house_insurance": {
+      "cap": 5000
+    }
+  },
+  "rebates": {
+    "women": {
+      "rate": 10,
+      "applies_to": "Resident woman with only employment income, filing as an individual"
+    }
+  },
+  "sources": [
+    {
+      "title": "Income Tax Act 2058, Schedule 1, as amended for the year"
+    },
+    {
+      "title": "Income Tax Rules 2059, rule 21, as amended for the year"
+    }
+  ]
+}

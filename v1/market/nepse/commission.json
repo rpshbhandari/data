@@ -1,0 +1,68 @@
+{
+  "dataset": "nepse-broker-commission",
+  "updated": "2026-10-16",
+  "currency": "NPR",
+  "applies_to": "Equity shares; the slab's rate applies to the whole transaction amount",
+  "schedules": [
+    {
+      "from": "2020-12-27",
+      "to": "2024-05-13",
+      "minimum": 10,
+      "slabs": [
+        {
+          "up_to": 50000,
+          "rate": 0.4
+        },
+        {
+          "up_to": 500000,
+          "rate": 0.37
+        },
+        {
+          "up_to": 2000000,
+          "rate": 0.34
+        },
+        {
+          "up_to": 10000000,
+          "rate": 0.3
+        },
+        {
+          "up_to": null,
+          "rate": 0.27
+        }
+      ]
+    },
+    {
+      "from": "2024-05-14",
+      "to": null,
+      "minimum": 10,
+      "slabs": [
+        {
+          "up_to": 50000,
+          "rate": 0.36
+        },
+        {
+          "up_to": 500000,
+          "rate": 0.33
+        },
+        {
+          "up_to": 2000000,
+          "rate": 0.31
+        },
+        {
+          "up_to": 10000000,
+          "rate": 0.27
+        },
+        {
+          "up_to": null,
+          "rate": 0.24
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "SEBON and NEPSE circulars",
+      "url": "https://www.sebon.gov.np/"
+    }
+  ]
+}

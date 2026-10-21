@@ -1,0 +1,18 @@
+{
+  "dataset": "nepse-fees",
+  "updated": "2026-10-16",
+  "currency": "NPR",
+  "sebon_fee": {
+    "rate": 0.015,
+    "basis": "Percent of the transaction amount, on buy and sell"
+  },
+  "dp_charge": {
+    "amount": 25,
+    "basis": "Per company per day, on buy and sell"
+  },
+  "sources": [
+    {
+      "title": "SEBON and CDSC notices"
+    }
+  ]
+}

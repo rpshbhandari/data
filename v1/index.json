@@ -1,0 +1,61 @@
+{
+  "updated": "2026-10-19",
+  "files": [
+    {
+      "path": "market/nepse/capital-gains-tax.json",
+      "dataset": "nepse-capital-gains-tax",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "market/nepse/commission.json",
+      "dataset": "nepse-broker-commission",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "market/nepse/fees.json",
+      "dataset": "nepse-fees",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "tax/depreciation/pools.json",
+      "dataset": "depreciation-pools",
+      "updated": "2026-10-19"
+    },
+    {
+      "path": "tax/income/2080-81.json",
+      "dataset": "income-tax",
+      "fiscal_year": "2080/81",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "tax/income/2081-82.json",
+      "dataset": "income-tax",
+      "fiscal_year": "2081/82",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "tax/income/2082-83.json",
+      "dataset": "income-tax",
+      "fiscal_year": "2082/83",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "tax/income/2083-84.json",
+      "dataset": "income-tax",
+      "fiscal_year": "2083/84",
+      "updated": "2026-10-16"
+    },
+    {
+      "path": "tax/tds/2083-84.json",
+      "dataset": "tds",
+      "fiscal_year": "2083/84",
+      "updated": "2026-10-19"
+    },
+    {
+      "path": "tax/vat/2083-84.json",
+      "dataset": "vat",
+      "fiscal_year": "2083/84",
+      "updated": "2026-10-19"
+    }
+  ]
+}

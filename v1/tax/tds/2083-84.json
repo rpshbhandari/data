@@ -1,0 +1,97 @@
+{
+  "dataset": "tds",
+  "fiscal_year": "2083/84",
+  "starts": {
+    "bs": "2083-04-01",
+    "ad": "2026-07-17"
+  },
+  "updated": "2026-10-19",
+  "currency": "NPR",
+  "basis": "Percent of the payment before VAT",
+  "rates": [
+    {
+      "id": "service",
+      "payment": "Service fee or consultancy, payee not VAT-registered",
+      "rate": 15
+    },
+    {
+      "id": "service-vat",
+      "payment": "Service fee or consultancy, payee VAT-registered or VAT-exempt",
+      "rate": 1.5
+    },
+    {
+      "id": "rent",
+      "payment": "Rent of a house, land or office",
+      "rate": 10
+    },
+    {
+      "id": "contract",
+      "payment": "Contract work over NPR 50,000",
+      "rate": 1.5,
+      "threshold": 50000,
+      "note": "Applies to the whole payment once it is over NPR 50,000. Payments to the same person under the same contract in the previous 10 days count towards the limit."
+    },
+    {
+      "id": "commission",
+      "payment": "Commission or sales bonus",
+      "rate": 15
+    },
+    {
+      "id": "insurance-agent",
+      "payment": "Commission to an individual insurance agent",
+      "rate": 20
+    },
+    {
+      "id": "royalty",
+      "payment": "Royalty",
+      "rate": 15
+    },
+    {
+      "id": "royalty-literary",
+      "payment": "Royalty for literary work",
+      "rate": 1.5
+    },
+    {
+      "id": "transport",
+      "payment": "Transport service or transport hire",
+      "rate": 2.5
+    },
+    {
+      "id": "transport-vat",
+      "payment": "Transport service or vehicle hire, VAT-registered provider",
+      "rate": 1.5
+    },
+    {
+      "id": "telecom",
+      "payment": "Use of satellite, bandwidth, telecom equipment or transmission lines",
+      "rate": 10
+    },
+    {
+      "id": "interest",
+      "payment": "Interest on deposits, bonds or debentures (not business)",
+      "rate": 6,
+      "vat_applies": false
+    },
+    {
+      "id": "dividend",
+      "payment": "Dividend",
+      "rate": 5,
+      "vat_applies": false
+    },
+    {
+      "id": "windfall",
+      "payment": "Windfall gain: lottery, prize or gift",
+      "rate": 25,
+      "vat_applies": false
+    }
+  ],
+  "sources": [
+    {
+      "title": "Income Tax Act 2058, Chapter 17"
+    },
+    {
+      "title": "Finance Act 2083 (Nepal Gazette)",
+      "url": "https://ird.gov.np/content/13566/economic-act--2083--date-of-publication-in/"
+    }
+  ]
+}
