@@ -5,7 +5,8 @@
 
 Every file needs "dataset", "updated" and "sources". Each dataset then has its
 own checks below: rates in range, slabs that join up, dates in order. A file
-whose dataset has no checker fails, so add one to CHECKS with each new dataset.
+whose dataset has no checker fails, so add one to CHECKS with each new dataset,
+and document it in ENDPOINTS in index.html (the API page), which is checked too.
 """
 import json
 import re
@@ -16,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 V1 = ROOT / "v1"
 INDEX = V1 / "index.json"
+DOCS = ROOT / "index.html"
 
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 BS_DATE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[0-2])$")  # Nepali months run to 32 days
@@ -294,6 +296,11 @@ def main():
             entry["fiscal_year"] = d["fiscal_year"]
         entry["updated"] = d.get("updated")
         entries.append(entry)
+
+    docs = DOCS.read_text(encoding="utf-8")
+    for dataset in sorted({e["dataset"] for e in entries if isinstance(e["dataset"], str)}):
+        if f'dataset: "{dataset}"' not in docs:
+            p("index.html", f'dataset "{dataset}" has no entry in ENDPOINTS; document its fields there')
 
     index = {"updated": max((e["updated"] for e in entries if isinstance(e["updated"], str)), default=None), "files": entries}
     if write:

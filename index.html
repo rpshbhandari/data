@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rupesh Bhandari Data</title>
-<meta name="description" content="Nepal's income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges as free JSON files, each dated and sourced.">
+<meta name="description" content="A free JSON API for Nepal's income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Each file is dated and sourced, and you can try every endpoint in the browser.">
 <link rel="canonical" href="https://data.rupeshbhandari.com.np/">
 <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1b1e" media="(prefers-color-scheme: dark)">
@@ -14,11 +14,67 @@
 <link rel="stylesheet" href="https://tools.rupeshbhandari.com.np/assets/site.css">
 <script src="https://tools.rupeshbhandari.com.np/assets/site.js" defer></script>
 <style>
-  .base{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 32px}
-  .base code{overflow-wrap:anywhere}
-  .files{overflow-x:auto;margin:0 0 32px}
-  .files td a{overflow-wrap:anywhere}
-  pre{margin:0 0 24px;padding:14px;border:1px solid var(--ln);border-radius:10px;background:var(--field);overflow-x:auto;font-size:13px;line-height:1.6}
+  :root{--jstr:light-dark(#9a4f22,#e6a77a);--jnum:light-dark(#2f5fae,#8fb6f0);--jlit:light-dark(#7a4fb8,#c2a8f0)}
+  @supports not (color:light-dark(#fff,#000)){:root{--jstr:#9a4f22;--jnum:#2f5fae;--jlit:#7a4fb8}}
+  main{max-width:1180px}
+  .lede{color:var(--mu);margin:0 0 20px;max-width:72ch}
+  .quick{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}
+  .quick code{font-size:14px;overflow-wrap:anywhere}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 36px;padding:0;list-style:none}
+  .chips li{padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--ac);font-size:12px}
+
+  .docs{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;align-items:start}
+  .toc{position:sticky;top:16px;display:flex;flex-direction:column;gap:1px;font-size:13px}
+  .toc .label{font-size:11px;letter-spacing:.08em;color:var(--mu);margin:16px 0 4px 8px}
+  .toc .label:first-child{margin-top:0}
+  .toc a{display:block;padding:5px 8px;border-radius:6px;color:var(--mu);text-decoration:none}
+  .toc a:hover,.toc a.on{color:var(--fg);background:var(--soft)}
+  .content{min-width:0}
+
+  .sec{padding:32px 0;border-top:1px solid var(--ln)}
+  .sec:first-child{padding-top:0;border-top:0}
+  .sec h2{font-size:22px;margin:0 0 10px}
+  .sec h3{font-family:var(--display);font-size:15px;margin:24px 0 8px}
+  .sec p{max-width:72ch}
+  .sec ul{max-width:72ch;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+  .sec li code,.sec p code,.fields td code{padding:0 4px;border-radius:4px;background:var(--soft)}
+  .route{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}
+  .verb{padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--ac);font-weight:700;font-size:12px;letter-spacing:.04em}
+  .route code{overflow-wrap:anywhere}
+  .route var{font-style:normal;color:var(--ac)}
+
+  .tryit{border:1px solid var(--ln);border-radius:10px;background:var(--field);overflow:hidden;min-width:0}
+  .try-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 14px}
+  .param{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mu)}
+  .param select{min-height:40px;padding:0 10px;border:1px solid var(--ln2);border-radius:6px;background:var(--field);color:var(--fg);font:inherit}
+  .req{flex:1 1 280px;min-width:0;font-size:12px;color:var(--mu);overflow-wrap:anywhere}
+  .send{min-height:40px}
+  .tabs{display:flex;flex-wrap:wrap;align-items:center;gap:2px;padding:6px 8px;border-top:1px solid var(--ln)}
+  .tabs [role="tab"]{min-height:32px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--mu);font-size:12px;cursor:pointer}
+  .tabs [role="tab"]:hover{color:var(--fg)}
+  .tabs [role="tab"][aria-selected="true"]{background:var(--soft);color:var(--fg)}
+  .tabs .mini{margin-left:auto}
+  pre.code,pre.json{margin:0;padding:14px;overflow:auto;font-size:12.5px;line-height:1.6;background:var(--bg);border-top:1px solid var(--ln);tab-size:2}
+  pre.json{max-height:440px}
+  .resp-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:8px 14px;border-top:1px solid var(--ln);font-size:12px;color:var(--mu)}
+  .resp-meta .mini{margin-left:auto}
+  .status{font-weight:700}
+  .status.ok{color:var(--ok)}
+  .status.bad{color:var(--err)}
+  .jk{color:var(--ac)}.js{color:var(--jstr)}.jn{color:var(--jnum)}.jl{color:var(--jlit)}
+
+  .tablewrap{overflow-x:auto}
+  .fields td{font-size:13px}
+  .fields th:last-child{width:60%}
+  .fields td:first-child code{overflow-wrap:anywhere}
+  .fields .type{color:var(--mu);white-space:nowrap}
+
+  @media (max-width:860px){
+    .docs{grid-template-columns:minmax(0,1fr);gap:8px}
+    .toc{position:static;flex-direction:row;flex-wrap:wrap;gap:6px}
+    .toc .label{display:none}
+    .toc a{border:1px solid var(--ln2)}
+  }
 </style>
 </head>
 <body>
@@ -39,53 +95,328 @@
 
 <main>
   <h1>Nepal's tax and market rates, as JSON</h1>
-  <p class="sub">Income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges as plain files. Each file says when it was last checked and where its figures come from, and the calculators on <a href="https://tools.rupeshbhandari.com.np/">tools.rupeshbhandari.com.np</a> read these same files. Free to use, with no key or sign-up.</p>
+  <p class="lede">A free API for income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Every file says when its figures were last checked and where they come from, and the calculators on <a href="https://tools.rupeshbhandari.com.np/">tools.rupeshbhandari.com.np</a> read these same files. Pick an endpoint below and press <b>Send request</b> to see the live response.</p>
 
-  <div class="base">
+  <div class="quick">
+    <span class="verb">BASE URL</span>
     <code id="base">https://data.rupeshbhandari.com.np/v1/</code>
     <button type="button" class="mini" id="copy-base">Copy</button>
   </div>
+  <ul class="chips" aria-label="At a glance">
+    <li>GET only</li><li>JSON</li><li>No key or sign-up</li><li>CORS open: call it from a browser</li><li>Past years never change</li>
+  </ul>
 
-  <h2>Files</h2>
-  <div class="files"><table class="tbl" id="files"><tbody><tr><td>Loading the file list…</td></tr></tbody></table></div>
+  <div class="docs">
+    <nav class="toc" id="toc" aria-label="On this page">
+      <span class="label">OVERVIEW</span>
+      <a href="#conventions">Conventions</a>
+      <span class="label">ENDPOINTS</span>
+      <!-- endpoint links are added by the script -->
+    </nav>
 
-  <h2>Using a file</h2>
-<pre>const url = "https://data.rupeshbhandari.com.np/v1/tax/income/2083-84.json";
-const { slabs } = await fetch(url).then((r) =&gt; r.json());
-// slabs.individual → [{ from: 0, to: 1000000, rate: 1, … }, …]</pre>
-  <p>Rates are percentages (13 means 13%), amounts are in rupees, and a slab with <code>"to": null</code> has no upper limit. <a href="v1/index.json">v1/index.json</a> lists every file with the date it was last checked.</p>
-
-  <p class="foot">Past years stay published: a new fiscal year adds a new file and never changes last year's. Figures are copied from the sources named in each file. Check them against the Inland Revenue Department, SEBON or NEPSE before relying on them; this is not tax or investment advice.</p>
+    <div class="content" id="content">
+      <section class="sec" id="conventions">
+        <h2>Conventions</h2>
+        <ul>
+          <li>Every file has <code>dataset</code>, <code>updated</code> (the date its figures were last checked against the source) and <code>sources</code> (a list of <code>{ "title", "url" }</code>; <code>url</code> is optional).</li>
+          <li>Rates are percentages: <code>13</code> means 13%, and <code>0.015</code> means 0.015%.</li>
+          <li>Amounts are whole rupees (NPR). An upper bound of <code>null</code> means the slab has no upper limit.</li>
+          <li>Shares with no exact decimal are fractions in a string, such as <code>"1/3"</code>.</li>
+          <li>Dates are AD, as <code>YYYY-MM-DD</code>. Fiscal-year files also give the start of the year in Bikram Sambat: <code>"starts": { "bs": "2083-04-01", "ad": "2026-07-17" }</code>.</li>
+          <li>Each fiscal year is its own file and is never changed afterwards except to fix a mistake, so a calculation for a past year keeps working. A change that would break existing readers goes in <code>/v2/</code>.</li>
+          <li>Responses can be cached for up to 10 minutes. Any website can fetch the files: they are sent with <code>Access-Control-Allow-Origin: *</code>.</li>
+          <li>Python's built-in <code>urllib</code> is turned away unless it sends its own <code>User-Agent</code> header, as in the Python examples below. Other clients work as they are.</li>
+        </ul>
+      </section>
+      <!-- endpoint sections are added by the script -->
+      <section class="sec" id="errors">
+        <h2>Errors</h2>
+        <p>An address with no file behind it, such as a fiscal year that isn't published yet, returns <code>404</code> with GitHub Pages' HTML error page rather than JSON. Check <code>res.ok</code> (or the status code) before parsing, and use <a href="#index">index.json</a> to see which files exist.</p>
+        <div class="tryit" data-try="tax/income/2090-91.json">
+          <div class="try-bar">
+            <code class="req">GET https://data.rupeshbhandari.com.np/v1/tax/income/2090-91.json</code>
+            <button type="button" class="btn primary send">Send request</button>
+          </div>
+          <div class="resp" hidden aria-live="polite"></div>
+        </div>
+      </section>
+      <p class="foot">Figures are copied from the sources named in each file. Check them against the Inland Revenue Department, SEBON or NEPSE before relying on them; this is not tax or investment advice. Source on <a href="https://github.com/rpshbhandari/data">GitHub</a>.</p>
+    </div>
+  </div>
 </main>
 
 <script>
 "use strict";
-const NAMES = {
-  "income-tax": "Income tax slabs and deductions",
-  "tds": "TDS rates",
-  "vat": "VAT rates",
-  "depreciation-pools": "Depreciation pools",
-  "nepse-broker-commission": "NEPSE broker commission",
-  "nepse-fees": "SEBON fee and DP charge",
-  "nepse-capital-gains-tax": "Capital gains tax on listed shares",
-};
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-const long = (iso) => new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const BASE = "https://data.rupeshbhandari.com.np/v1/";
+// Opened from localhost (scripts/serve.py), "Send request" reads the local files instead.
+const API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? new URL("v1/", location.href).href : BASE;
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-document.getElementById("copy-base").addEventListener("click", (e) => copyText(document.getElementById("base").textContent, e.currentTarget));
+const FISCAL_YEAR = "Fiscal year as <code>yyyy-yy</code>, for example <code>2083-84</code>. The choices come from index.json.";
+const YEAR_FIELDS = [
+  ["fiscal_year", "string", "The fiscal year, for example <code>\"2083/84\"</code>."],
+  ["starts.bs", "string", "Shrawan 1 in Bikram Sambat, the day the year starts: <code>\"2083-04-01\"</code>."],
+  ["starts.ad", "date", "The same day in AD: <code>\"2026-07-17\"</code>."],
+];
 
-fetch("v1/index.json")
-  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then((index) => {
-    const rows = index.files.map((f) => `<tr>
-      <td><a href="v1/${esc(f.path)}">${esc(f.path)}</a></td>
-      <td>${esc(NAMES[f.dataset] || f.dataset)}${f.fiscal_year ? `, ${esc(f.fiscal_year)}` : ""}</td>
-      <td><time datetime="${esc(f.updated)}">${long(f.updated)}</time></td></tr>`).join("");
-    document.getElementById("files").innerHTML = `<thead><tr><th>File</th><th>Contents</th><th>Last checked</th></tr></thead><tbody>${rows}</tbody>`;
-  })
-  .catch(() => {
-    document.getElementById("files").innerHTML = `<tbody><tr><td>The file list didn't load. Open <a href="v1/index.json">v1/index.json</a> directly.</td></tr></tbody>`;
-  });
+/* One entry per kind of file. scripts/check.py fails if a dataset has no entry here. */
+const ENDPOINTS = [
+  {
+    id: "index", dataset: "index", title: "List every file", path: "index.json",
+    desc: "Every published file with its dataset, fiscal year and the date it was last checked. Use it to find the newest fiscal year instead of guessing file names.",
+    js: "data.files.map((f) => f.path)", py: "[f[\"path\"] for f in data[\"files\"]]",
+    fields: [
+      ["updated", "date", "The newest <code>updated</code> date across all files."],
+      ["files[]", "array", "One entry per file."],
+      ["files[].path", "string", "Path under <code>/v1/</code>, for example <code>\"tax/income/2083-84.json\"</code>."],
+      ["files[].dataset", "string", "Which dataset the file holds."],
+      ["files[].fiscal_year", "string", "For files that cover one fiscal year."],
+      ["files[].updated", "date", "When that file's figures were last checked."],
+    ],
+  },
+  {
+    id: "income-tax", dataset: "income-tax", title: "Income tax slabs and deductions", path: "tax/income/{fiscal_year}.json",
+    desc: "Slabs, deduction limits and the women's rebate for a resident individual's employment income, one file per fiscal year from 2080/81. Used by the <a href=\"https://tools.rupeshbhandari.com.np/finance/salary-tax/\">Nepal Salary Tax Calculator</a>.",
+    js: "data.slabs.individual", py: "data[\"slabs\"][\"individual\"]",
+    fields: [
+      ...YEAR_FIELDS,
+      ["currency", "string", "Always <code>\"NPR\"</code>."],
+      ["applies_to", "string", "Who the slabs are for."],
+      ["slabs.individual[]", "array", "Slabs for a person filing alone, lowest first."],
+      ["slabs.couple[]", "array", "Slabs for a couple filing jointly. From 2083/84 the same as <code>individual</code>."],
+      ["slabs.*[].from", "number", "Lower bound of the slab, in rupees."],
+      ["slabs.*[].to", "number | null", "Upper bound; <code>null</code> on the top slab."],
+      ["slabs.*[].rate", "number", "Tax rate, in percent."],
+      ["slabs.*[].rate_if_ssf", "number", "First slab only: the rate when the taxpayer contributes to SSF (the 1% social security tax is waived)."],
+      ["deductions.retirement_funds", "object", "<code>funds</code> that count (SSF, EPF, CIT); the yearly limit <code>cap_with_ssf</code> or <code>cap_without_ssf</code>; and <code>max_share_of_income</code>, a fraction of total income the deduction can't exceed."],
+      ["deductions.life_insurance.cap", "number", "Yearly limit on life insurance premium."],
+      ["deductions.health_insurance.cap", "number", "Yearly limit on health insurance premium."],
+      ["deductions.house_insurance.cap", "number", "Yearly limit on house insurance premium."],
+      ["deductions.tuition_fees", "object", "From 2083/84: the <code>share</code> of children's school fees allowed (a fraction), up to <code>cap</code> rupees."],
+      ["rebates.women", "object", "<code>rate</code>, in percent of the total tax, and who it <code>applies_to</code>."],
+      ["changes[]", "array", "What changed from the previous year, in words."],
+    ],
+  },
+  {
+    id: "tds", dataset: "tds", title: "TDS rates", path: "tax/tds/{fiscal_year}.json",
+    desc: "Tax deducted at source for 14 kinds of payment, under Chapter 17 of the Income Tax Act as amended for the year.",
+    js: "data.rates.find((r) => r.id === \"rent\").rate", py: "next(r[\"rate\"] for r in data[\"rates\"] if r[\"id\"] == \"rent\")",
+    fields: [
+      ...YEAR_FIELDS,
+      ["basis", "string", "What the rates apply to: the payment before VAT."],
+      ["rates[].id", "string", "A stable identifier, such as <code>\"rent\"</code> or <code>\"service-vat\"</code>."],
+      ["rates[].payment", "string", "The kind of payment."],
+      ["rates[].rate", "number", "TDS rate, in percent."],
+      ["rates[].threshold", "number", "Deducted only when the payment is over this many rupees (contract work)."],
+      ["rates[].note", "string", "Extra conditions."],
+      ["rates[].vat_applies", "boolean", "<code>false</code> for payments that carry no VAT: interest, dividend and windfall gains."],
+    ],
+  },
+  {
+    id: "vat", dataset: "vat", title: "VAT rates", path: "tax/vat/{fiscal_year}.json",
+    desc: "The standard and reduced VAT rates for the year. FY 2083/84 added a reduced 5% rate.",
+    js: "data.rates", py: "data[\"rates\"]",
+    fields: [
+      ...YEAR_FIELDS,
+      ["rates[].id", "string", "<code>\"standard\"</code>, <code>\"reduced\"</code> or <code>\"none\"</code>."],
+      ["rates[].rate", "number", "VAT rate, in percent."],
+      ["rates[].applies_to", "array", "What the rate covers."],
+      ["rates[].since", "string", "The fiscal year the rate was introduced."],
+    ],
+  },
+  {
+    id: "depreciation", dataset: "depreciation-pools", title: "Depreciation pools", path: "tax/depreciation/pools.json",
+    desc: "The Schedule 2 pool rates for tax depreciation, how much of an asset's cost enters the pool depending on when in the year it was bought, and the NPR 2,000 small-balance rule.",
+    js: "data.pools", py: "data[\"pools\"]",
+    fields: [
+      ["method", "string", "How the rates are applied."],
+      ["pools[].id", "string", "<code>\"A\"</code> to <code>\"E\"</code>."],
+      ["pools[].rate", "number | null", "Yearly rate on the pool balance, in percent; <code>null</code> for pool E."],
+      ["pools[].assets", "string", "What belongs in the pool."],
+      ["pools[].method", "string", "Pool E only: how intangible assets are written off."],
+      ["additions[].added", "string", "When in the year the asset was added, in BS months."],
+      ["additions[].share_of_cost", "string", "The fraction of its cost added to the pool that year, such as <code>\"2/3\"</code>."],
+      ["additions_note", "string", "What happens to the rest of the cost."],
+      ["small_balance", "object", "<code>below</code>, in rupees, and the <code>rule</code> for claiming a small remaining balance in full."],
+    ],
+  },
+  {
+    id: "nepse-commission", dataset: "nepse-broker-commission", title: "NEPSE broker commission", path: "market/nepse/commission.json",
+    desc: "Broker commission on equity trades, as a schedule for each period it applied, so past trade dates keep their old rates.",
+    js: "data.schedules.at(-1).slabs", py: "data[\"schedules\"][-1][\"slabs\"]",
+    fields: [
+      ["applies_to", "string", "Which trades, and that the slab's rate applies to the whole amount."],
+      ["schedules[].from", "date", "First trade date the schedule applies to."],
+      ["schedules[].to", "date | null", "Last trade date; <code>null</code> for the current schedule."],
+      ["schedules[].minimum", "number", "Minimum commission per trade, in rupees."],
+      ["schedules[].slabs[].up_to", "number | null", "Upper bound of the transaction amount; <code>null</code> on the top slab."],
+      ["schedules[].slabs[].rate", "number", "Commission, in percent of the transaction amount."],
+    ],
+  },
+  {
+    id: "nepse-fees", dataset: "nepse-fees", title: "SEBON fee and DP charge", path: "market/nepse/fees.json",
+    desc: "The other charges on every NEPSE buy and sell, on top of broker commission.",
+    js: "data.sebon_fee.rate", py: "data[\"sebon_fee\"][\"rate\"]",
+    fields: [
+      ["sebon_fee.rate", "number", "In percent of the transaction amount."],
+      ["sebon_fee.basis", "string", "When it is charged."],
+      ["dp_charge.amount", "number", "In rupees."],
+      ["dp_charge.basis", "string", "When it is charged: per company per day."],
+    ],
+  },
+  {
+    id: "capital-gains", dataset: "nepse-capital-gains-tax", title: "Capital gains tax on listed shares", path: "market/nepse/capital-gains-tax.json",
+    desc: "Capital gains tax on listed shares, as a schedule by sale date. It changed twice in 2026: in July with the Finance Act 2083 and in September by cabinet decision.",
+    js: "data.schedules.at(-1).individual", py: "data[\"schedules\"][-1][\"individual\"]",
+    fields: [
+      ["short_term_max_days", "number", "Shares held this many days or fewer count as short-term."],
+      ["schedules[].from", "date", "Sale date from which the rates apply."],
+      ["schedules[].individual.short_term", "number", "Rate for an individual's short-term gain, in percent."],
+      ["schedules[].individual.long_term", "number", "Rate for an individual's long-term gain, in percent."],
+      ["schedules[].institution", "number", "Rate for companies and institutions, in percent."],
+      ["schedules[].basis", "string", "The law or decision behind the rates."],
+    ],
+  },
+];
+
+/* ── Code samples ─────────────────────────────────────────────── */
+let lang = "curl";
+try { lang = localStorage.getItem("data-code-lang") || "curl"; } catch (e) {}
+const LANGS = { curl: "curl", js: "JavaScript", py: "Python" };
+const sample = (ep, url) => ({
+  curl: `curl ${url}`,
+  js: `const res = await fetch("${url}");\nconst data = await res.json();\n\nconsole.log(${ep.js});`,
+  py: `import json\nimport urllib.request\n\nurl = "${url}"\n# Cloudflare turns away urllib's default user agent, so send your own.\nreq = urllib.request.Request(url, headers={"User-Agent": "my-app/1.0"})\nwith urllib.request.urlopen(req) as res:\n    data = json.load(res)\n\nprint(${ep.py})`,
+}[lang]);
+
+/* ── JSON highlighting ───────────────────────────────────────── */
+const hl = (json) => esc(json).replace(/("(?:\\.|[^"\\])*")(\s*:)?|(-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b|\b(null|true|false)\b/g,
+  (m, str, colon, num, lit) => str ? (colon ? `<span class="jk">${str}</span>${colon}` : `<span class="js">${str}</span>`) : num ? `<span class="jn">${num}</span>` : `<span class="jl">${lit}</span>`);
+const size = (n) => (n < 1024 ? `${n} B` : `${(n / 1024).toFixed(1)} KB`);
+
+/* ── Sending a request ───────────────────────────────────────── */
+async function send(box, path) {
+  const btn = $(".send", box), out = $(".resp", box);
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+  const t0 = performance.now();
+  let meta, body, raw = "";
+  try {
+    const res = await fetch(API + path, { cache: "no-store" });
+    raw = await res.text();
+    const ms = Math.round(performance.now() - t0);
+    const type = res.headers.get("content-type") || "";
+    meta = `<span class="status ${res.ok ? "ok" : "bad"}">${res.status} ${res.ok ? "OK" : res.status === 404 ? "Not Found" : esc(res.statusText)}</span><span>${ms} ms</span><span>${size(new Blob([raw]).size)}</span><span>${esc(type.split(";")[0])}</span>`;
+    if (type.includes("json")) {
+      raw = JSON.stringify(JSON.parse(raw), null, 2);
+      body = hl(raw);
+    } else {
+      body = esc(`The body is ${res.status === 404 ? "GitHub Pages' HTML error page" : "not JSON"} (${size(raw.length)}), so there is nothing to parse.\nCheck the path against index.json.`);
+      raw = "";
+    }
+  } catch (err) {
+    meta = `<span class="status bad">Network error</span>`;
+    body = esc(`${err.message}\nCheck your connection and try again.`);
+  }
+  out.innerHTML = `<div class="resp-meta">${meta}${raw ? '<button type="button" class="mini copy-resp">Copy response</button>' : ""}</div><pre class="json" tabindex="0">${body}</pre>`;
+  out.hidden = false;
+  const copyBtn = $(".copy-resp", out);
+  if (copyBtn) copyBtn.addEventListener("click", () => copyText(raw, copyBtn));
+  btn.disabled = false;
+  btn.textContent = "Send request";
+}
+
+/* ── Building the page ───────────────────────────────────────── */
+const filled = (ep, sec) => ep.path.replace("{fiscal_year}", sec ? $("select", sec).value : "2083-84");
+const routeHtml = (path) => esc(`/v1/${path}`).replace("{fiscal_year}", "<var>{fiscal_year}</var>");
+
+function endpointSection(ep, years) {
+  const sec = document.createElement("section");
+  sec.className = "sec";
+  sec.id = ep.id;
+  const hasParam = ep.path.includes("{fiscal_year}");
+  sec.innerHTML = `
+    <h2>${ep.title}</h2>
+    <div class="route"><span class="verb">GET</span><code>${routeHtml(ep.path)}</code></div>
+    <p>${ep.desc}</p>
+    ${hasParam ? `<h3>Parameters</h3><div class="tablewrap"><table class="tbl fields"><thead><tr><th>Name</th><th>In</th><th>Description</th></tr></thead>
+      <tbody><tr><td><code>fiscal_year</code></td><td class="type">path</td><td>${FISCAL_YEAR}</td></tr></tbody></table></div>` : ""}
+    <h3>Try it</h3>
+    <div class="tryit">
+      <div class="try-bar">
+        ${hasParam ? `<label class="param">fiscal_year <select id="${ep.id}-fy">${years.map((y) => `<option>${esc(y)}</option>`).join("")}</select></label>` : ""}
+        <code class="req"></code>
+        <button type="button" class="btn primary send">Send request</button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Example code">
+        ${Object.entries(LANGS).map(([k, v]) => `<button type="button" role="tab" data-lang="${k}" aria-selected="${k === lang}">${v}</button>`).join("")}
+        <button type="button" class="mini copy-code">Copy</button>
+      </div>
+      <pre class="code" tabindex="0"></pre>
+      <div class="resp" hidden aria-live="polite"></div>
+    </div>
+    <h3>Response fields</h3>
+    <div class="tablewrap"><table class="tbl fields"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+      ${ep.fields.map(([name, type, text]) => `<tr><td><code>${esc(name).replace(/\./g, ".<wbr>")}</code></td><td class="type">${esc(type)}</td><td>${text}</td></tr>`).join("")}
+    </tbody></table></div>
+    ${ep.id === "index" ? "" : `<p class="foot">Every response also has <code>dataset</code> (<code>"${ep.dataset}"</code>), <code>updated</code> and <code>sources</code>; see <a href="#conventions">Conventions</a>.</p>`}`;
+  const refresh = () => {
+    const path = filled(ep, hasParam ? sec : null);
+    $(".req", sec).textContent = `GET ${BASE}${path}`;
+    $("pre.code", sec).textContent = sample(ep, BASE + path);
+  };
+  $(".send", sec).addEventListener("click", () => send(sec, filled(ep, hasParam ? sec : null)));
+  $(".copy-code", sec).addEventListener("click", (e) => copyText($("pre.code", sec).textContent, e.currentTarget));
+  if (hasParam) $("select", sec).addEventListener("change", () => { refresh(); $(".resp", sec).hidden = true; });
+  sec.refresh = refresh;
+  refresh();
+  return sec;
+}
+
+function setLang(next) {
+  lang = next;
+  try { localStorage.setItem("data-code-lang", lang); } catch (e) {}
+  document.querySelectorAll(".tabs [role=tab]").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.lang === lang)));
+  document.querySelectorAll("section.sec").forEach((s) => s.refresh && s.refresh());
+}
+
+async function build() {
+  let years = {};
+  try {
+    const index = await fetch(API + "index.json").then((r) => r.json());
+    for (const f of index.files) if (f.fiscal_year) (years[f.dataset] ||= []).push(f.fiscal_year.replace("/", "-"));
+    for (const k in years) years[k].sort().reverse();
+  } catch (e) {
+    years = {};   // the selects fall back to the current year below
+  }
+  const before = $("#errors"), toc = $("#toc");
+  for (const ep of ENDPOINTS) {
+    before.before(endpointSection(ep, years[ep.dataset] || ["2083-84"]));
+    toc.insertAdjacentHTML("beforeend", `<a href="#${ep.id}">${esc(ep.title)}</a>`);
+  }
+  toc.insertAdjacentHTML("beforeend", `<span class="label">MORE</span><a href="#errors">Errors</a>`);
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  spy();
+}
+
+/* Highlight the section in view in the side menu. */
+function spy() {
+  const links = [...document.querySelectorAll(".toc a")];
+  const secs = links.map((a) => document.getElementById(a.hash.slice(1))).filter(Boolean);
+  const mark = () => {
+    let cur = secs[0];
+    for (const s of secs) if (s.getBoundingClientRect().top < 120) cur = s;
+    links.forEach((a) => a.classList.toggle("on", a.hash === "#" + cur.id));
+  };
+  addEventListener("scroll", mark, { passive: true });
+  mark();
+}
+
+document.addEventListener("click", (e) => { const t = e.target.closest(".tabs [role=tab]"); if (t) setLang(t.dataset.lang); });
+$("#copy-base").addEventListener("click", (e) => copyText(BASE, e.currentTarget));
+document.querySelectorAll("[data-try]").forEach((box) => $(".send", box).addEventListener("click", () => send(box, box.dataset.try)));
+build();
 </script>
 </body>
 </html>

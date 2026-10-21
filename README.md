@@ -2,6 +2,18 @@
 
 Nepal's tax and market rates as JSON at **[data.rupeshbhandari.com.np](https://data.rupeshbhandari.com.np/)**: income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Each file says when it was last checked and where its figures come from. The calculators on [tools.rupeshbhandari.com.np](https://tools.rupeshbhandari.com.np/) read these files, and anyone else can fetch them too (GitHub Pages sends `Access-Control-Allow-Origin: *`).
 
+## Using the API
+
+Every file is a plain `GET` with no key, under `https://data.rupeshbhandari.com.np/v1/`. Start with `index.json`, which lists every file:
+
+```bash
+curl https://data.rupeshbhandari.com.np/v1/index.json
+```
+
+The [site's front page](https://data.rupeshbhandari.com.np/) is the API documentation. It covers every endpoint and its response fields, with curl, JavaScript and Python examples, and a **Send request** button that shows the live response.
+
+Python's built-in `urllib` is turned away by Cloudflare unless it sends its own `User-Agent` header; `requests`, `httpx`, curl, browsers and other clients work as they are.
+
 ## Layout
 
 ```
@@ -13,7 +25,7 @@ v1/tax/depreciation/pools.json         Schedule 2 pool rates and the rules for a
 v1/market/nepse/commission.json        Broker commission schedules, by the date each took effect
 v1/market/nepse/fees.json              SEBON fee and DP charge
 v1/market/nepse/capital-gains-tax.json Capital gains tax on listed shares, by the date each rate took effect
-index.html                             The site's front page: lists the files from v1/index.json
+index.html                             The site's front page and API documentation; ENDPOINTS in its script describes each dataset's fields
 scripts/check.py                       Checks every file and keeps v1/index.json in step (run before pushing)
 scripts/serve.py                       Serves the repo on localhost:8001 with CORS, for a local copy of the tools site
 ```
@@ -39,11 +51,11 @@ scripts/serve.py                       Serves the repo on localhost:8001 with CO
 python3 scripts/check.py --write
 ```
 
-The calculators pick up a new fiscal year from `v1/index.json` without any change to their pages.
+The calculators and the API page pick up a new fiscal year from `v1/index.json` without any change to their pages. A new kind of dataset also needs a checker in `CHECKS` in `scripts/check.py` and an entry in `ENDPOINTS` in `index.html` describing its fields; the check fails until both exist.
 
 ## Checks
 
-`scripts/check.py` fails if a file is missing its date or sources, a rate is outside 0–100%, slabs don't join up or don't end with an open top slab, schedules overlap or leave a gap, a fiscal year doesn't match its file name, or `v1/index.json` is out of date. A file for a new kind of dataset fails until it has its own checker in `CHECKS`. The deploy workflow runs the same check and stops if it fails.
+`scripts/check.py` fails if a file is missing its date or sources, a rate is outside 0–100%, slabs don't join up or don't end with an open top slab, schedules overlap or leave a gap, a fiscal year doesn't match its file name, `v1/index.json` is out of date, or a dataset isn't documented in `index.html`. A file for a new kind of dataset fails until it has its own checker in `CHECKS`. The deploy workflow runs the same check and stops if it fails.
 
 ## Run it locally
 
