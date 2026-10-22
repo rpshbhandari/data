@@ -138,6 +138,27 @@
         </ul>
       </section>
       <!-- endpoint sections are added by the script -->
+      <section class="sec" id="feeds">
+        <h2>Calendar feeds</h2>
+        <p>Two calendar feeds, built from the <a href="#bs-calendar">Bikram Sambat calendar</a>, put the BS date on every day in Google Calendar, Apple Calendar or Outlook. Subscribe once and your calendar app keeps them up to date.</p>
+        <div class="tablewrap"><table class="tbl fields"><thead><tr><th>Feed</th><th>Address</th><th>Each day reads</th></tr></thead><tbody>
+          <tr><td>Nepali</td><td><code>https://data.rupeshbhandari.com.np/calendar/nepali.ics</code></td><td><code>कात्तिक ५</code>; the first of each month adds the year, <code>कात्तिक १, २०८३</code>.</td></tr>
+          <tr><td>English</td><td><code>https://data.rupeshbhandari.com.np/calendar/english.ics</code></td><td><code>Kartik 5</code>; the first of each month adds the year, <code>Kartik 1, 2083</code>.</td></tr>
+        </tbody></table></div>
+        <h3>Subscribe</h3>
+        <ul>
+          <li><b>Google Calendar</b>: in the left column, <i>Other calendars</i> → <b>+</b> → <i>From URL</i>, and paste an address above.</li>
+          <li><b>Apple Calendar</b> (Mac, iPhone, iPad): open <a href="webcal://data.rupeshbhandari.com.np/calendar/nepali.ics">the Nepali feed</a> or <a href="webcal://data.rupeshbhandari.com.np/calendar/english.ics">the English feed</a> and confirm.</li>
+          <li><b>Outlook</b>: <i>Add calendar</i> → <i>Subscribe from web</i>, and paste an address above.</li>
+        </ul>
+        <h3>What's in them</h3>
+        <ul>
+          <li>One all-day event per day, marked free so it never blocks your time. All-day dates don't shift for people outside Nepal.</li>
+          <li>The event's description gives the weekday and full date, such as <code>बिहीबार, ५ कात्तिक २०८३</code> or <code>Thursday, Kartik 5, 2083 BS</code>.</li>
+          <li>The feeds start from the year before the current year and run to the end of the calendar file. Days in <code>"projected"</code> years say so in their description, since those dates can still change.</li>
+          <li>When a date is corrected, the event changes in place. Calendar apps refresh subscribed feeds every 12 to 24 hours.</li>
+        </ul>
+      </section>
       <section class="sec" id="errors">
         <h2>Errors</h2>
         <p>An address with no file behind it, such as a fiscal year that isn't published yet, returns <code>404</code> with GitHub Pages' HTML error page rather than JSON. Check <code>res.ok</code> (or the status code) before parsing, and use <a href="#index">index.json</a> to see which files exist.</p>
@@ -289,7 +310,7 @@ const ENDPOINTS = [
   },
   {
     id: "bs-calendar", dataset: "bs-calendar", title: "Bikram Sambat calendar", path: "calendar/bs.json",
-    desc: "How many days each month of each Bikram Sambat year has, and the AD date each year starts, from 2000 BS to three years ahead, with month and weekday names in English and Nepali. Enough to convert any date between BS and AD, or to build a Nepali-date calendar feed. Years not yet approved by the Nepal Panchanga Nirnayak Bikas Samiti are marked <code>\"projected\"</code> and may change.",
+    desc: "How many days each month of each Bikram Sambat year has, and the AD date each year starts, from 2000 BS to three years ahead, with month and weekday names in English and Nepali. Enough to convert any date between BS and AD; the <a href=\"#feeds\">calendar feeds</a> are built from it. Years not yet approved by the Nepal Panchanga Nirnayak Bikas Samiti are marked <code>\"projected\"</code> and may change.",
     js: "data.years.find((y) => y.year === 2083).months", py: "next(y[\"months\"] for y in data[\"years\"] if y[\"year\"] == 2083)",
     fields: [
       ["calendar", "string", "Always <code>\"Bikram Sambat\"</code>."],
@@ -425,7 +446,7 @@ async function build() {
     before.before(endpointSection(ep, years[ep.dataset] || ["2083-84"]));
     toc.insertAdjacentHTML("beforeend", `<a href="#${ep.id}">${esc(ep.title)}</a>`);
   }
-  toc.insertAdjacentHTML("beforeend", `<span class="label">MORE</span><a href="#errors">Errors</a>`);
+  toc.insertAdjacentHTML("beforeend", `<span class="label">MORE</span><a href="#feeds">Calendar feeds</a><a href="#errors">Errors</a>`);
   if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
   spy();
 }

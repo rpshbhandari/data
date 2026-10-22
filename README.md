@@ -1,6 +1,6 @@
 # Rupesh Bhandari Data
 
-Nepal's tax and market rates and the Bikram Sambat calendar as JSON at **[data.rupeshbhandari.com.np](https://data.rupeshbhandari.com.np/)**: income tax slabs, TDS and VAT rates, depreciation pools, NEPSE charges and the length of every BS month. Each file says when it was last checked and where its figures come from. The calculators on [tools.rupeshbhandari.com.np](https://tools.rupeshbhandari.com.np/) read these files, and anyone else can fetch them too (GitHub Pages sends `Access-Control-Allow-Origin: *`).
+Nepal's tax and market rates and the Bikram Sambat calendar as JSON at **[data.rupeshbhandari.com.np](https://data.rupeshbhandari.com.np/)**: income tax slabs, TDS and VAT rates, depreciation pools, NEPSE charges and the length of every BS month, plus two calendar feeds people can subscribe to for the Nepali date on every day. Each file says when it was last checked and where its figures come from. The calculators on [tools.rupeshbhandari.com.np](https://tools.rupeshbhandari.com.np/) read these files, and anyone else can fetch them too (GitHub Pages sends `Access-Control-Allow-Origin: *`).
 
 ## Using the API
 
@@ -26,8 +26,10 @@ v1/market/nepse/commission.json        Broker commission schedules, by the date 
 v1/market/nepse/fees.json              SEBON fee and DP charge
 v1/market/nepse/capital-gains-tax.json Capital gains tax on listed shares, by the date each rate took effect
 v1/calendar/bs.json                    Bikram Sambat month lengths and the AD start of each year, 2000 to 2086 BS, with month and weekday names
+calendar/nepali.ics, english.ics       Subscribable feeds with the BS date on every day, built from bs.json by scripts/ics.py
 index.html                             The site's front page and API documentation; ENDPOINTS in its script describes each dataset's fields
-scripts/check.py                       Checks every file and keeps v1/index.json in step (run before pushing)
+scripts/check.py                       Checks every file and keeps v1/index.json and the calendar feeds in step (run before pushing)
+scripts/ics.py                         Builds the calendar feeds from bs.json (check.py --write runs it)
 scripts/serve.py                       Serves the repo on localhost:8001 with CORS, for a local copy of the tools site
 ```
 
@@ -51,15 +53,31 @@ scripts/serve.py                       Serves the repo on localhost:8001 with CO
 - **Where the figures come from.** Four open-source tables (nepali-datetime, bikram-sambat, nepali-date-converter, py-nepali) agree on every year from 2000 to 2083 except 2062. Hamro Patro was read month by month for 2062 and 2075–2086, and those years follow it. In 2062, Baisakh has 31 days and Jestha 1 is 15 May 2005, as on Hamro Patro and Ashesh's calendar. py-nepali repeats old years after 2083 and is not used for them.
 - **Checks.** `scripts/check.py` checks that each year has 12 months of 29–32 days adding up to 365 or 366, that each year starts the day after the last one ends and in mid-April, that official years come before projected ones, and that `covers` matches. It also checks every fiscal-year file's `starts.ad` against this calendar.
 
-### Building a subscribable calendar from it
+### Calendar feeds
 
-A feed (`.ics`) that puts the Nepali date on every day in Google Calendar, Apple Calendar or Outlook works best like this:
+Two `.ics` feeds put the BS date on every day in Google Calendar, Apple Calendar or Outlook:
 
-- One all-day event per day, `DTSTART;VALUE=DATE:20261022` and `DTEND;VALUE=DATE:20261023`. All-day dates have no time zone, so the date doesn't move for subscribers outside Nepal.
-- Make the `UID` from the AD date, such as `20261022@data.rupeshbhandari.com.np`. If a projected year is corrected, each day keeps its event and only its title changes, instead of leaving duplicates behind.
-- Build titles from `months[].ne`, `digits` and `weekdays`, for example `कात्तिक ५` or `Kartik 5, 2083`. A separate feed for each script is simpler for people than one with both.
-- Cover about a year back to the end of the file, and mark days in projected years (for example `(projected)` in the description), so people know those dates can still change.
-- Rebuild the feed whenever `bs.json` changes. Calendar apps fetch subscribed feeds every few hours to a day, so corrections reach people on their own.
+| Feed | Address | Each day reads |
+| --- | --- | --- |
+| Nepali | `https://data.rupeshbhandari.com.np/calendar/nepali.ics` | `कात्तिक ५`; the first of each month adds the year, `कात्तिक १, २०८३` |
+| English | `https://data.rupeshbhandari.com.np/calendar/english.ics` | `Kartik 5`; the first of each month adds the year, `Kartik 1, 2083` |
+
+To subscribe: in Google Calendar, *Other calendars* → **+** → *From URL*; on a Mac or iPhone, open the address with `webcal://` in place of `https://`; in Outlook, *Add calendar* → *Subscribe from web*. Once people subscribe, the addresses can never change.
+
+How the feeds are made, in `scripts/ics.py`:
+
+- One all-day event per day (`DTSTART;VALUE=DATE`), so the date doesn't move for people outside Nepal. Events are marked free (`TRANSP:TRANSPARENT`), so they don't block anyone's time.
+- The `UID` comes from the AD date, such as `20261022-ne@data.rupeshbhandari.com.np`. When a projected year is corrected, each day's event changes its title in place instead of leaving duplicates.
+- The description gives the weekday and full date, and on days in projected years says the date may still change.
+- The feeds run from Baisakh 1 of the year before the last official year (2082 now) to the end of `bs.json`. They depend on nothing but `bs.json` (`DTSTAMP` is its `updated` date), so they only change when it does. Making 2084 official moves the start to 2083 on its own.
+- `calendar/*.ics` are generated files kept in the repo, like `v1/index.json`. Don't edit them: change `bs.json` and run `python3 scripts/check.py --write`. `.gitattributes` keeps their CRLF line endings, which the format requires.
+- Calendar apps fetch subscribed feeds every 12–24 hours, and Google can't be made to refresh sooner, so a correction takes up to a day to reach people.
+
+### Updating the calendar
+
+1. When the Samiti approves a year, correct its month lengths in `v1/calendar/bs.json` if they differ, set its `status` to `"official"`, and set `updated` to today. Add new years at the end the same way, as `"projected"`.
+2. Run `python3 scripts/check.py --write`, which rebuilds `v1/index.json` and both feeds.
+3. Commit `bs.json`, `index.json` and the two feeds together. The deploy stops if the feeds don't match `bs.json`.
 
 ## Adding a fiscal year or changing a rate
 
@@ -76,7 +94,7 @@ The calculators and the API page pick up a new fiscal year from `v1/index.json` 
 
 ## Checks
 
-`scripts/check.py` fails if a file is missing its date or sources, a rate is outside 0–100%, slabs don't join up or don't end with an open top slab, schedules overlap or leave a gap, a fiscal year doesn't match its file name, `v1/index.json` is out of date, or a dataset isn't documented in `index.html`. A file for a new kind of dataset fails until it has its own checker in `CHECKS`. The deploy workflow runs the same check and stops if it fails.
+`scripts/check.py` fails if a file is missing its date or sources, a rate is outside 0–100%, slabs don't join up or don't end with an open top slab, schedules overlap or leave a gap, a fiscal year doesn't match its file name, `v1/index.json` or a calendar feed is out of date, the BS calendar has a gap or a month of the wrong length, a fiscal year's `starts.ad` disagrees with the calendar, or a dataset isn't documented in `index.html`. A file for a new kind of dataset fails until it has its own checker in `CHECKS`. The deploy workflow runs the same check and stops if it fails.
 
 ## Run it locally
 
@@ -93,6 +111,6 @@ Then visit <http://localhost:8001>. A local copy of the tools site (on port 8000
 | `tax/income/*.json` | [Nepal Salary Tax Calculator](https://tools.rupeshbhandari.com.np/finance/salary-tax/) |
 | `tax/tds/`, `tax/vat/` | Not yet; the [VAT and TDS Calculator](https://tools.rupeshbhandari.com.np/finance/vat-tds/) still keeps its own copy |
 | `tax/depreciation/pools.json` | Not yet; the [Depreciation Schedule](https://tools.rupeshbhandari.com.np/finance/depreciation/) still keeps its own copy |
-| `calendar/bs.json` | Not yet; for a BS–AD converter and a subscribable Nepali-date calendar |
+| `calendar/bs.json` | The calendar feeds in `calendar/`; also meant for a BS–AD converter |
 | `market/nepse/*.json` | Not yet; the [NEPSE Share Calculator](https://tools.rupeshbhandari.com.np/finance/nepse-calculator/) still keeps its own copy |
 

@@ -2,6 +2,7 @@
 
     python3 scripts/check.py           check; exit 1 and list the problems
     python3 scripts/check.py --write   also reformat the files and rewrite v1/index.json
+                                       and the calendar feeds in calendar/
 
 Every file needs "dataset", "updated" and "sources". Each dataset then has its
 own checks below: rates in range, slabs that join up, dates in order. A file
@@ -13,6 +14,8 @@ import re
 import sys
 from datetime import date, timedelta
 from pathlib import Path
+
+import ics
 
 ROOT = Path(__file__).resolve().parent.parent
 V1 = ROOT / "v1"
@@ -379,6 +382,12 @@ def main():
             ad = bs_to_ad(calendar, starts.get("bs"))
             if ad and starts.get("ad") != ad.isoformat():
                 p(rel, f'"starts.ad" should be {ad}, the AD date of {starts["bs"]} in calendar/bs.json')
+        # The .ics feeds are built from the calendar and kept in calendar/, like index.json.
+        feeds = ics.build(calendar)
+        if write:
+            ics.write(feeds)
+        for name in ics.stale(feeds):
+            p(f"calendar/{name}", "out of date with calendar/bs.json; run python3 scripts/check.py --write")
 
     docs = DOCS.read_text(encoding="utf-8")
     for dataset in sorted({e["dataset"] for e in entries if isinstance(e["dataset"], str)}):

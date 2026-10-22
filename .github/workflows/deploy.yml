@@ -25,14 +25,15 @@ jobs:
           python-version: "3.13"
 
       # Stops the deploy if a file is missing its sources or date, a rate is out
-      # of range, slabs don't join up, or index.json doesn't match the files.
+      # of range, slabs don't join up, or index.json or the calendar feeds don't
+      # match the files.
       - name: Check the data files
         run: python scripts/check.py
 
       - name: Collect the published files
         run: |
           mkdir site
-          cp -R v1 index.html site/
+          cp -R v1 calendar index.html site/
 
       - uses: actions/upload-pages-artifact@v5
         with:
