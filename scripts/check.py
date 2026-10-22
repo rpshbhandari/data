@@ -243,7 +243,80 @@ def check_capital_gains(p, w, d):
         text(p, sw + ".basis", s.get("basis"))
 
 
+BS_STATUSES = ("official", "projected")
+
+
+def check_bs_calendar(p, w, d):
+    names = items(p, f"{w} months", d.get("months"))
+    if [m.get("number") for m in names] != list(range(1, 13)):
+        p(w, '"months" should be numbered 1 to 12')
+    for m in names:
+        for key in ("en", "ne", "ne_formal"):
+            text(p, f'{w} months[{m.get("number")}].{key}', m.get(key))
+    days = items(p, f"{w} weekdays", d.get("weekdays"))
+    if [x.get("number") for x in days] != list(range(7)) or (days and days[0].get("en") != "Sunday"):
+        p(w, '"weekdays" should be numbered 0 to 6, Sunday first')
+    if d.get("digits") != list("०१२३४५६७८९"):
+        p(w, '"digits" should be the Devanagari digits ० to ९')
+    statuses = d.get("statuses") or {}
+    for s in BS_STATUSES:
+        text(p, f"{w} statuses.{s}", statuses.get(s))
+
+    years = items(p, f"{w} years", d.get("years"))
+    previous = None
+    for y in years:
+        yw = f'{w} year {y.get("year")}'
+        months = y.get("months")
+        if not isinstance(months, list) or len(months) != 12 or not all(isinstance(n, int) and 29 <= n <= 32 for n in months):
+            p(yw, '"months" should be 12 month lengths of 29 to 32 days')
+            months = None
+        start, end = ad_date(y.get("starts")), ad_date(y.get("ends"))
+        if start is None or end is None:
+            p(yw, '"starts" and "ends" should be dates like 2026-04-14')
+        elif not (start.month == 4 and 11 <= start.day <= 16):
+            p(yw, f'"starts" {start} should be in mid-April, when Baisakh begins')
+        if months and y.get("days") != sum(months):
+            p(yw, f'"days" should be {sum(months)}, the sum of the month lengths')
+        if y.get("days") not in (365, 366):
+            p(yw, f'"days" {y.get("days")} should be 365 or 366')
+        if start and end and isinstance(y.get("days"), int) and end != start + timedelta(days=y["days"] - 1):
+            p(yw, '"ends" should be "days" - 1 days after "starts"')
+        if y.get("status") not in BS_STATUSES:
+            p(yw, f'"status" should be one of {", ".join(BS_STATUSES)}')
+        if previous:
+            if y.get("year") != previous.get("year", 0) + 1:
+                p(yw, f'should follow year {previous.get("year")} with no gap')
+            if start and ad_date(previous.get("ends")) and start != ad_date(previous["ends"]) + timedelta(days=1):
+                p(yw, f'"starts" should be the day after {previous.get("year")} ends')
+            if previous.get("status") == "projected" and y.get("status") == "official":
+                p(yw, "an official year should not follow a projected one")
+        previous = y
+
+    covers = d.get("covers") or {}
+    if years and previous:
+        first = years[0]
+        want = {"bs": {"from": f'{first.get("year")}-01-01', "to": f'{previous.get("year")}-12-{(previous.get("months") or [0])[-1]:02d}'},
+                "ad": {"from": first.get("starts"), "to": previous.get("ends")}}
+        if covers != want:
+            p(w, f'"covers" should be {json.dumps(want, ensure_ascii=False)}')
+
+
+def bs_to_ad(calendar, bs):
+    """The AD date of a "yyyy-mm-dd" BS date, using a bs-calendar file, or None if out of range."""
+    if not isinstance(bs, str) or not BS_DATE.match(bs):
+        return None
+    y, m, dd = (int(x) for x in bs.split("-"))
+    for year in calendar.get("years", []):
+        if year.get("year") == y:
+            months = year["months"]
+            if dd > months[m - 1]:
+                return None
+            return ad_date(year["starts"]) + timedelta(days=sum(months[:m - 1]) + dd - 1)
+    return None
+
+
 CHECKS = {
+    "bs-calendar": check_bs_calendar,
     "income-tax": check_income_tax,
     "tds": check_tds,
     "vat": check_vat,
@@ -263,7 +336,7 @@ def dump(d):
 def main():
     write = "--write" in sys.argv[1:]
     p = Problems()
-    entries, seen = [], {}
+    entries, seen, loaded = [], {}, {}
     paths = sorted(f for f in V1.rglob("*.json") if f != INDEX)
     for path in paths:
         rel = path.relative_to(V1).as_posix()
@@ -281,6 +354,7 @@ def main():
                 path.write_text(dump(d), encoding="utf-8")
             else:
                 p(rel, "not in the standard format (2-space indent); run python3 scripts/check.py --write")
+        loaded[rel] = d
         check_common(p, rel, d, path)
         check = CHECKS.get(d.get("dataset"))
         if check:
@@ -296,6 +370,15 @@ def main():
             entry["fiscal_year"] = d["fiscal_year"]
         entry["updated"] = d.get("updated")
         entries.append(entry)
+
+    # A fiscal year's Shrawan 1 should fall on the AD date the BS calendar gives it.
+    calendar = next((d for d in loaded.values() if d.get("dataset") == "bs-calendar"), None)
+    if calendar:
+        for rel, d in loaded.items():
+            starts = d.get("starts") or {}
+            ad = bs_to_ad(calendar, starts.get("bs"))
+            if ad and starts.get("ad") != ad.isoformat():
+                p(rel, f'"starts.ad" should be {ad}, the AD date of {starts["bs"]} in calendar/bs.json')
 
     docs = DOCS.read_text(encoding="utf-8")
     for dataset in sorted({e["dataset"] for e in entries if isinstance(e["dataset"], str)}):

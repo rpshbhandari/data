@@ -1,6 +1,11 @@
 {
-  "updated": "2026-10-19",
+  "updated": "2026-10-22",
   "files": [
+    {
+      "path": "calendar/bs.json",
+      "dataset": "bs-calendar",
+      "updated": "2026-10-22"
+    },
     {
       "path": "market/nepse/capital-gains-tax.json",
       "dataset": "nepse-capital-gains-tax",

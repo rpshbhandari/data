@@ -1,6 +1,6 @@
 # Rupesh Bhandari Data
 
-Nepal's tax and market rates as JSON at **[data.rupeshbhandari.com.np](https://data.rupeshbhandari.com.np/)**: income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Each file says when it was last checked and where its figures come from. The calculators on [tools.rupeshbhandari.com.np](https://tools.rupeshbhandari.com.np/) read these files, and anyone else can fetch them too (GitHub Pages sends `Access-Control-Allow-Origin: *`).
+Nepal's tax and market rates and the Bikram Sambat calendar as JSON at **[data.rupeshbhandari.com.np](https://data.rupeshbhandari.com.np/)**: income tax slabs, TDS and VAT rates, depreciation pools, NEPSE charges and the length of every BS month. Each file says when it was last checked and where its figures come from. The calculators on [tools.rupeshbhandari.com.np](https://tools.rupeshbhandari.com.np/) read these files, and anyone else can fetch them too (GitHub Pages sends `Access-Control-Allow-Origin: *`).
 
 ## Using the API
 
@@ -25,6 +25,7 @@ v1/tax/depreciation/pools.json         Schedule 2 pool rates and the rules for a
 v1/market/nepse/commission.json        Broker commission schedules, by the date each took effect
 v1/market/nepse/fees.json              SEBON fee and DP charge
 v1/market/nepse/capital-gains-tax.json Capital gains tax on listed shares, by the date each rate took effect
+v1/calendar/bs.json                    Bikram Sambat month lengths and the AD start of each year, 2000 to 2086 BS, with month and weekday names
 index.html                             The site's front page and API documentation; ENDPOINTS in its script describes each dataset's fields
 scripts/check.py                       Checks every file and keeps v1/index.json in step (run before pushing)
 scripts/serve.py                       Serves the repo on localhost:8001 with CORS, for a local copy of the tools site
@@ -38,7 +39,27 @@ scripts/serve.py                       Serves the repo on localhost:8001 with CO
 - Shares that have no exact decimal are fractions in a string: `"1/3"`, `"2/3"`, `"1/4"`.
 - Fiscal-year files are named after the year (`2083-84.json` holds `"fiscal_year": "2083/84"`) and say when the year starts in both calendars: `"starts": { "bs": "2083-04-01", "ad": "2026-07-17" }`.
 - Dates for rate changes within a year (`from`, `to`) are AD dates.
+- Dates in Bikram Sambat are strings like `"2083-04-01"` (year, month 1–12, day 1–32).
 - `v1` is the version in the address. A change that would break someone reading the files, such as renaming a field, goes in `v2/` rather than editing `v1/`.
+
+## The Bikram Sambat calendar
+
+`v1/calendar/bs.json` holds, for each BS year from 2000, the AD date of Baisakh 1 (`starts`), the last day (`ends`) and the 12 month lengths. That is all a converter needs: month *m* of a year starts on `starts` plus the days of the months before it.
+
+- **`status`.** Years up to 2083 are `"official"`: approved by the [Nepal Panchanga Nirnayak Bikas Samiti](https://npns.gov.np/) and printed in that year's calendars. Later years are `"projected"` and can change when the Samiti approves them, usually around Magh of the year before. When it does, correct the month lengths, set the year to `"official"`, and set `updated`.
+- **Range.** The file stops at 2086. From 2087 the sources disagree with each other, and Hamro Patro's own figures can't be right (2087 has 367 days), so there is nothing trustworthy to publish yet. Add a year once its calendar is approved or the sources agree.
+- **Where the figures come from.** Four open-source tables (nepali-datetime, bikram-sambat, nepali-date-converter, py-nepali) agree on every year from 2000 to 2083 except 2062. Hamro Patro was read month by month for 2062 and 2075–2086, and those years follow it. In 2062, Baisakh has 31 days and Jestha 1 is 15 May 2005, as on Hamro Patro and Ashesh's calendar. py-nepali repeats old years after 2083 and is not used for them.
+- **Checks.** `scripts/check.py` checks that each year has 12 months of 29–32 days adding up to 365 or 366, that each year starts the day after the last one ends and in mid-April, that official years come before projected ones, and that `covers` matches. It also checks every fiscal-year file's `starts.ad` against this calendar.
+
+### Building a subscribable calendar from it
+
+A feed (`.ics`) that puts the Nepali date on every day in Google Calendar, Apple Calendar or Outlook works best like this:
+
+- One all-day event per day, `DTSTART;VALUE=DATE:20261022` and `DTEND;VALUE=DATE:20261023`. All-day dates have no time zone, so the date doesn't move for subscribers outside Nepal.
+- Make the `UID` from the AD date, such as `20261022@data.rupeshbhandari.com.np`. If a projected year is corrected, each day keeps its event and only its title changes, instead of leaving duplicates behind.
+- Build titles from `months[].ne`, `digits` and `weekdays`, for example `कात्तिक ५` or `Kartik 5, 2083`. A separate feed for each script is simpler for people than one with both.
+- Cover about a year back to the end of the file, and mark days in projected years (for example `(projected)` in the description), so people know those dates can still change.
+- Rebuild the feed whenever `bs.json` changes. Calendar apps fetch subscribed feeds every few hours to a day, so corrections reach people on their own.
 
 ## Adding a fiscal year or changing a rate
 
@@ -72,5 +93,6 @@ Then visit <http://localhost:8001>. A local copy of the tools site (on port 8000
 | `tax/income/*.json` | [Nepal Salary Tax Calculator](https://tools.rupeshbhandari.com.np/finance/salary-tax/) |
 | `tax/tds/`, `tax/vat/` | Not yet; the [VAT and TDS Calculator](https://tools.rupeshbhandari.com.np/finance/vat-tds/) still keeps its own copy |
 | `tax/depreciation/pools.json` | Not yet; the [Depreciation Schedule](https://tools.rupeshbhandari.com.np/finance/depreciation/) still keeps its own copy |
+| `calendar/bs.json` | Not yet; for a BS–AD converter and a subscribable Nepali-date calendar |
 | `market/nepse/*.json` | Not yet; the [NEPSE Share Calculator](https://tools.rupeshbhandari.com.np/finance/nepse-calculator/) still keeps its own copy |
 

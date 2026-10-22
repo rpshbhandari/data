@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rupesh Bhandari Data</title>
-<meta name="description" content="A free JSON API for Nepal's income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Each file is dated and sourced, and you can try every endpoint in the browser.">
+<meta name="description" content="A free JSON API for Nepal's income tax slabs, TDS and VAT rates, depreciation pools, NEPSE charges and the Bikram Sambat calendar. Each file is dated and sourced, and you can try every endpoint in the browser.">
 <link rel="canonical" href="https://data.rupeshbhandari.com.np/">
 <meta name="theme-color" content="#f5f8f6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1b1e" media="(prefers-color-scheme: dark)">
@@ -104,7 +104,7 @@
 
 <main>
   <h1>Nepal's tax and market rates, as JSON</h1>
-  <p class="lede">A free API for income tax slabs, TDS and VAT rates, depreciation pools and NEPSE charges. Every file says when its figures were last checked and where they come from, and the calculators on <a href="https://tools.rupeshbhandari.com.np/">tools.rupeshbhandari.com.np</a> read these same files. Pick an endpoint below and press <b>Send request</b> to see the live response.</p>
+  <p class="lede">A free API for income tax slabs, TDS and VAT rates, depreciation pools, NEPSE charges and the Bikram Sambat calendar. Every file says when its figures were last checked and where they come from, and the calculators on <a href="https://tools.rupeshbhandari.com.np/">tools.rupeshbhandari.com.np</a> read these same files. Pick an endpoint below and press <b>Send request</b> to see the live response.</p>
 
   <div class="quick">
     <span class="verb">BASE URL</span>
@@ -285,6 +285,27 @@ const ENDPOINTS = [
       ["schedules[].individual.long_term", "number", "Rate for an individual's long-term gain, in percent."],
       ["schedules[].institution", "number", "Rate for companies and institutions, in percent."],
       ["schedules[].basis", "string", "The law or decision behind the rates."],
+    ],
+  },
+  {
+    id: "bs-calendar", dataset: "bs-calendar", title: "Bikram Sambat calendar", path: "calendar/bs.json",
+    desc: "How many days each month of each Bikram Sambat year has, and the AD date each year starts, from 2000 BS to three years ahead, with month and weekday names in English and Nepali. Enough to convert any date between BS and AD, or to build a Nepali-date calendar feed. Years not yet approved by the Nepal Panchanga Nirnayak Bikas Samiti are marked <code>\"projected\"</code> and may change.",
+    js: "data.years.find((y) => y.year === 2083).months", py: "next(y[\"months\"] for y in data[\"years\"] if y[\"year\"] == 2083)",
+    fields: [
+      ["calendar", "string", "Always <code>\"Bikram Sambat\"</code>."],
+      ["covers.bs", "object", "First and last BS dates in the file, <code>from</code> and <code>to</code>, as <code>yyyy-mm-dd</code>."],
+      ["covers.ad", "object", "The same range in AD."],
+      ["statuses", "object", "What <code>\"official\"</code> and <code>\"projected\"</code> mean, in words."],
+      ["months[]", "array", "The 12 months in order: <code>number</code> (1 is Baisakh), <code>en</code>, <code>ne</code> (as said, <code>\"कात्तिक\"</code>) and <code>ne_formal</code> (<code>\"कार्तिक\"</code>)."],
+      ["weekdays[]", "array", "Sunday first, so <code>number</code> matches JavaScript's <code>getDay()</code>: <code>en</code>, <code>ne</code> and <code>ne_short</code>. Python's <code>weekday()</code> starts at Monday: use <code>(weekday() + 1) % 7</code>."],
+      ["digits[]", "array", "Devanagari digits ० to ९, indexed by value."],
+      ["years[]", "array", "One entry per BS year, oldest first, with no gaps."],
+      ["years[].year", "number", "The BS year, for example <code>2083</code>."],
+      ["years[].status", "string", "<code>\"official\"</code> or <code>\"projected\"</code>. Official years never come after a projected one."],
+      ["years[].starts", "date", "AD date of Baisakh 1."],
+      ["years[].ends", "date", "AD date of the year's last day; the next year starts the day after."],
+      ["years[].days", "number", "365 or 366."],
+      ["years[].months[]", "array", "Days in each month, Baisakh first, 29 to 32. Month <i>m</i> starts <code>starts</code> plus the days of the months before it."],
     ],
   },
 ];
